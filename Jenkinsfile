@@ -14,7 +14,10 @@ pipeline {
         }
         stage('build') {
             steps {
-                sh 'dotnet publish -o published/ -c Release src/Presentation/Nop.Web/Nop.Web.csproj'
+                //sh 'dotnet publish -o published/ -c Release src/Presentation/Nop.Web/Nop.Web.csproj'
+                dotnetPublish configuration: 'Release',
+                    outputDirectory: 'published',
+                    project: 'src/Presentation/Nop.Web/Nop.Web.csproj'
 
             }
         }
