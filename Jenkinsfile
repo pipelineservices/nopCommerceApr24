@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'nop'
+        label 'my-label1-&&-my-label_jdk_17'
     }
     triggers {
         pollSCM('* * * * *')
@@ -14,21 +14,26 @@ pipeline {
         }
         stage('build') {
             steps {
-                //sh 'dotnet publish -o published/ -c Release src/Presentation/Nop.Web/Nop.Web.csproj'
-                dotnetPublish configuration: 'Release',
-                    outputDirectory: 'published',
-                    project: 'src/Presentation/Nop.Web/Nop.Web.csproj'
-
+                sh 'dotnet publish -o published/ -c Release src/Presentation/Nop.Web/Nop.Web.csproj'        
             }
+       
             post {
-                success {
-                    zip zipFile: 'nop.web.zip',
-                      archive: true,
-                      dir: './published',
-                      overwrite: true
-                }
-            }
-        }
+                failure {
+                    mail bcc: 'all@learningthoughts.io',
+                        from: 'jenkins@learningthouths.io',
+                        to: "dev@learningthoughs.io",
+                        subject: "Build of ${JOB_BASE_NAME} with Build Id ${BUILD_ID} is failed",
+                        body: "Refer to ${RUN_DISPLAY_URL} for more info"
 
+                }
+                success {
+                    mail bcc: 'all@learningthoughts.io',
+                        from: 'jenkins@learningthouths.io',
+                        to: "dev@learningthoughs.io",
+                        subject: "Build of ${JOB_BASE_NAME} with Build Id ${BUILD_ID} is success",
+                        body: "Refer to ${RUN_DISPLAY_URL} for more info"
+                }
+            }  
+        }
     }
 }
